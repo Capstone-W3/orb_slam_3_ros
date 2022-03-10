@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     image_transport::ImageTransport image_transport (node_handle);
 
-    RGBDNode node (ORB_SLAM2::System::RGBD, node_handle, image_transport);
+    RGBDNode node (ORB_SLAM3::System::RGBD, node_handle, image_transport);
 
     node.Init();
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 }
 
 
-RGBDNode::RGBDNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
+RGBDNode::RGBDNode (const ORB_SLAM3::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
   rgb_subscriber_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "/camera/rgb/image_raw", 1);
   depth_subscriber_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "/camera/depth_registered/image_raw", 1);
   camera_info_topic_ = "/camera/rgb/camera_info";
@@ -63,7 +63,7 @@ void RGBDNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgRGB, const se
 
   current_frame_time_ = msgRGB->header.stamp;
 
-  orb_slam_->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
+  cv::Mat position = orb_slam_->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
 
-  Update ();
+  Update (position);
 }

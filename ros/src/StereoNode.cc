@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     image_transport::ImageTransport image_transport (node_handle);
 
     // initialize
-    StereoNode node (ORB_SLAM2::System::STEREO, node_handle, image_transport);
+    StereoNode node (ORB_SLAM3::System::STEREO, node_handle, image_transport);
 
     node.Init();
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 }
 
 
-StereoNode::StereoNode (const ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
+StereoNode::StereoNode (const ORB_SLAM3::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
     left_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_left/image_color_rect", 1);
     right_sub_ = new message_filters::Subscriber<sensor_msgs::Image> (node_handle, "image_right/image_color_rect", 1);
     camera_info_topic_ = "image_left/camera_info";
@@ -63,7 +63,7 @@ void StereoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msgLeft, const
 
   current_frame_time_ = msgLeft->header.stamp;
 
-  orb_slam_->TrackStereo(cv_ptrLeft->image, cv_ptrRight->image, cv_ptrLeft->header.stamp.toSec());
+  cv::Mat position = orb_slam_->TrackStereo(cv_ptrLeft->image, cv_ptrRight->image, cv_ptrLeft->header.stamp.toSec());
 
-  Update ();
+  Update (position);
 }

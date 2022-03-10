@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     ros::NodeHandle node_handle;
     image_transport::ImageTransport image_transport (node_handle);
 
-    MonoNode node (ORB_SLAM2::System::MONOCULAR, node_handle, image_transport);
+    MonoNode node (ORB_SLAM3::System::MONOCULAR, node_handle, image_transport);
 
     node.Init();
 
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 }
 
 
-MonoNode::MonoNode (ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
+MonoNode::MonoNode (ORB_SLAM3::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) : Node (sensor, node_handle, image_transport) {
   image_subscriber = image_transport.subscribe ("/camera/image_raw", 1, &MonoNode::ImageCallback, this);
   camera_info_topic_ = "/camera/camera_info";
 }
@@ -46,7 +46,7 @@ void MonoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msg) {
 
   current_frame_time_ = msg->header.stamp;
 
-  orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
+  cv::Mat position = orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
 
-  Update ();
+  Update (position);
 }

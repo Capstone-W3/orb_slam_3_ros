@@ -1,4 +1,4 @@
-set (g2o_SOURCE_DIR "${PROJECT_SOURCE_DIR}/orb_slam2/Thirdparty/g2o")
+set (g2o_SOURCE_DIR "${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/g2o")
 
 SET (G2O_LIB_TYPE SHARED)
 
