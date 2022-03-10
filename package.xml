@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>orb_slam2_ros</name>
+  <name>orb_slam3_ros</name>
   <version>0.0.1</version>
-  <description>ORB SLAM2 ros implementation.</description>
+  <description>ORB SLAM3 ros implementation.</description>
 
   <maintainer email="haller@unternehmertum.de">Lennart Haller</maintainer>
 
