@@ -87,7 +87,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.00999999978
       Style: Flat Squares
-      Topic: /orb_slam2_rgbd/map_points
+      Topic: /orb_slam3_rgbd/map_points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -104,7 +104,7 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.0500000007
       Shape: Arrow
-      Topic: /orb_slam2_rgbd/pose
+      Topic: /orb_slam3_rgbd/pose
       Unreliable: false
       Value: true
     - Alpha: 1
