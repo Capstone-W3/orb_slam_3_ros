@@ -84,7 +84,7 @@ public:
 
     bool loop_detected; //modified
 
-    Viewer* mpViewer;
+    // Viewer* mpViewer;
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

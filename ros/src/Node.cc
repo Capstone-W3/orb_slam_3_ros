@@ -36,7 +36,7 @@ void Node::Init () {
    ORB_SLAM3::ORBParameters parameters;
    LoadOrbParameters (parameters);
 
-  orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file = map_file_name_param_, load_map = load_map_param_, bUseViewer = true);
+  orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file = map_file_name_param_, load_map = load_map_param_, bUseViewer = false);
 
   service_server_ = node_handle_.advertiseService(name_of_node_+"/save_map", &Node::SaveMapSrv, this);
 

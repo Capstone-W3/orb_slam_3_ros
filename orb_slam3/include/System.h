@@ -31,13 +31,13 @@
 
 #include "Tracking.h"
 #include "FrameDrawer.h"
-#include "MapDrawer.h"
+// #include "MapDrawer.h"
 #include "Atlas.h"
 #include "LocalMapping.h"
 #include "LoopClosing.h"
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
-#include "Viewer.h"
+// #include "Viewer.h"
 #include "ImuTypes.h"
 
 namespace ORB_SLAM3
@@ -70,7 +70,7 @@ public:
     }
 };
 
-class Viewer;
+// class Viewer;
 class FrameDrawer;
 class Atlas;
 class Tracking;
@@ -259,16 +259,16 @@ private:
     LoopClosing* mpLoopCloser;
 
     // The viewer draws the map and the current camera pose. It uses Pangolin.
-    Viewer* mpViewer;
+    // Viewer* mpViewer;
 
     FrameDrawer* mpFrameDrawer;
-    MapDrawer* mpMapDrawer;
+    // MapDrawer* mpMapDrawer;
 
     // System threads: Local Mapping, Loop Closing, Viewer.
     // The Tracking thread "lives" in the main execution thread that creates the System object.
     std::thread* mptLocalMapping;
     std::thread* mptLoopClosing;
-    std::thread* mptViewer;
+    // std::thread* mptViewer;
 
     // Reset flag
     std::mutex mMutexReset;

@@ -42,7 +42,7 @@ if(NOT OpenCV_FOUND)
 endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
-find_package(Pangolin REQUIRED)
+# find_package(Pangolin REQUIRED)
 
 set (DYNAMIC_RECONFIGURE_PATH ros/config/dynamic_reconfigure.cfg)
 execute_process(COMMAND chmod a+x ${DYNAMIC_RECONFIGURE_PATH}
@@ -58,7 +58,7 @@ generate_dynamic_reconfigure_options(
 set(LIBS_ORBSLAM
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
-${Pangolin_INCLUDE_DIRS}
+# ${Pangolin_INCLUDE_DIRS}
 ${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/g2o/lib/libg2o.so
 )
@@ -90,7 +90,7 @@ ${PROJECT_SOURCE_DIR}/orb_slam3/include
 ${PROJECT_SOURCE_DIR}/orb_slam3/include/CameraModels
 ${PROJECT_SOURCE_DIR}/ros/include
 ${EIGEN3_INCLUDE_DIR}
-${Pangolin_INCLUDE_DIRS}
+# ${Pangolin_INCLUDE_DIRS}
 ${catkin_INCLUDE_DIRS}
 )
 
@@ -112,14 +112,14 @@ orb_slam3/src/MapPoint.cc
 orb_slam3/src/KeyFrame.cc
 orb_slam3/src/Atlas.cc
 orb_slam3/src/Map.cc
-orb_slam3/src/MapDrawer.cc
+# orb_slam3/src/MapDrawer.cc
 orb_slam3/src/Optimizer.cc
 orb_slam3/src/PnPsolver.cc
 orb_slam3/src/Frame.cc
 orb_slam3/src/KeyFrameDatabase.cc
 orb_slam3/src/Sim3Solver.cc
 orb_slam3/src/Initializer.cc
-orb_slam3/src/Viewer.cc
+# orb_slam3/src/Viewer.cc
 orb_slam3/src/ImuTypes.cc
 orb_slam3/src/G2oTypes.cc
 orb_slam3/src/CameraModels/Pinhole.cpp

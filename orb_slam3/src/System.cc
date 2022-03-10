@@ -21,7 +21,7 @@
 #include "System.h"
 #include "Converter.h"
 #include <thread>
-#include <pangolin/pangolin.h>
+// #include <pangolin/pangolin.h>
 #include <iomanip>
 #include <openssl/md5.h>
 #include <boost/serialization/base_object.hpp>
@@ -38,10 +38,13 @@ namespace ORB_SLAM3
 
 Verbose::eLevel Verbose::th = Verbose::VERBOSITY_NORMAL;
 
+// System::System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor,
+//                const std::string & map_file, bool load_map, const bool bUseViewer, 
+//                const int initFr, const string &strSequence, const string &strLoadingFile):
 System::System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor,
                const std::string & map_file, bool load_map, const bool bUseViewer, 
                const int initFr, const string &strSequence, const string &strLoadingFile):
-    mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false), mbResetActiveMap(false),
+    mSensor(sensor), mbReset(false), mbResetActiveMap(false),
     mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false),
     map_file(map_file), load_map(load_map)
 {
@@ -125,12 +128,14 @@ System::System(const string &strVocFile, ORBParameters& parameters, const eSenso
 
     //Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpAtlas);
-    mpMapDrawer = new MapDrawer(mpAtlas, parameters);
+    // mpMapDrawer = new MapDrawer(mpAtlas, parameters);
 
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
-    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
-                             mpAtlas, mpKeyFrameDatabase, mSensor, parameters);
+    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpAtlas, 
+                             mpKeyFrameDatabase, mSensor, parameters);
+    // mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
+    //                          mpAtlas, mpKeyFrameDatabase, mSensor, parameters);
 
     //Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(this, mpAtlas, mSensor==MONOCULAR || mSensor==IMU_MONOCULAR, mSensor==IMU_MONOCULAR || mSensor==IMU_STEREO, strSequence);
@@ -152,14 +157,14 @@ System::System(const string &strVocFile, ORBParameters& parameters, const eSenso
     mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
 
     //Initialize the Viewer thread and launch
-    if(bUseViewer)
-    {
-        mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile);
-        mptViewer = new thread(&Viewer::Run, mpViewer);
-        mpTracker->SetViewer(mpViewer);
-        mpLoopCloser->mpViewer = mpViewer;
-        mpViewer->both = mpFrameDrawer->both;
-    }
+    // if(bUseViewer)
+    // {
+    //     mpViewer = new Viewer(this, mpFrameDrawer,mpMapDrawer,mpTracker,strSettingsFile);
+    //     mptViewer = new thread(&Viewer::Run, mpViewer);
+    //     mpTracker->SetViewer(mpViewer);
+    //     mpLoopCloser->mpViewer = mpViewer;
+    //     mpViewer->both = mpFrameDrawer->both;
+    // }
 
     //Set pointers between threads
     mpTracker->SetLocalMapper(mpLocalMapper);
@@ -420,12 +425,12 @@ void System::Shutdown()
 {
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
-    if(mpViewer)
-    {
-        mpViewer->RequestFinish();
-        while(!mpViewer->isFinished())
-            usleep(5000);
-    }
+    // if(mpViewer)
+    // {
+    //     mpViewer->RequestFinish();
+    //     while(!mpViewer->isFinished())
+    //         usleep(5000);
+    // }
 
     // Wait until all thread have effectively stopped
     while(!mpLocalMapper->isFinished() || !mpLoopCloser->isFinished() || mpLoopCloser->isRunningGBA())
@@ -442,8 +447,8 @@ void System::Shutdown()
         usleep(5000);
     }
 
-    if(mpViewer)
-        pangolin::BindToContext("ORB-SLAM3: Map Viewer");
+    // if(mpViewer)
+    //     pangolin::BindToContext("ORB-SLAM3: Map Viewer");
 }
 
 
