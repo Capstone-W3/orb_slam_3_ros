@@ -37,7 +37,11 @@ void Node::Init () {
    LoadOrbParameters (parameters);
 
   orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file_name_param_, load_map_param_, false);
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> cd5ca66c8eda459bca370b2cba7c01a79839bb58
   service_server_ = node_handle_.advertiseService(name_of_node_+"/save_map", &Node::SaveMapSrv, this);
 
   //Setup dynamic reconfigure
@@ -322,7 +326,9 @@ void Node::LoadOrbParameters (ORB_SLAM3::ORBParameters& parameters) {
 
   //ORB SLAM configuration parameters
   node_handle_.param(name_of_node_ + "/camera_fps", parameters.maxFrames, 30);
-  parameters.camera.fps = parameters.maxFrames;  node_handle_.param(name_of_node_ + "/camera_rgb_encoding", parameters.camera.RGB, true);
+  parameters.camera.fps = parameters.maxFrames;
+  // node_handle_.param(name_of_node_ + "/camera_fps", parameters.camera.fps, 30);
+  node_handle_.param(name_of_node_ + "/camera_rgb_encoding", parameters.camera.RGB, true);
   node_handle_.param(name_of_node_ + "/ORBextractor/nFeatures", parameters.nFeatures, 1200);
   node_handle_.param(name_of_node_ + "/ORBextractor/scaleFactor", parameters.scaleFactor, static_cast<float>(1.2));
   node_handle_.param(name_of_node_ + "/ORBextractor/nLevels", parameters.nLevels, 8);
