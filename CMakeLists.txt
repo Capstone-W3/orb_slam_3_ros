@@ -128,6 +128,7 @@ orb_slam3/src/CameraModels/Pinhole.cpp
 orb_slam3/src/CameraModels/KannalaBrandt8.cpp
 orb_slam3/src/OptimizableTypes.cpp
 orb_slam3/src/MLPnPsolver.cpp
+orb_slam3/src/TwoViewReconstruction.cc
 )
 add_dependencies (${PROJECT_NAME} g2o DBoW2)
 
