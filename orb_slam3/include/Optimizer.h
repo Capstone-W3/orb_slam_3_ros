@@ -61,8 +61,8 @@ public:
 
     int static PoseOptimization(Frame* pFrame);
 
-    int static PoseInertialOptimizationLastKeyFrame(Frame* pFrame, bool bRecInit = false);
-    int static PoseInertialOptimizationLastFrame(Frame *pFrame, bool bRecInit = false);
+    // int static PoseInertialOptimizationLastKeyFrame(Frame* pFrame, bool bRecInit = false);
+    // int static PoseInertialOptimizationLastFrame(Frame *pFrame, bool bRecInit = false);
 
     // if bFixScale is true, 6DoF optimization (stereo,rgbd), 7DoF otherwise (mono)
     void static OptimizeEssentialGraph(Map* pMap, KeyFrame* pLoopKF, KeyFrame* pCurKF,
@@ -111,11 +111,11 @@ public:
     // Remove link between element 1 and 2. Given elements 1,2 and 3 must define the whole matrix.
     static Eigen::MatrixXd Sparsify(const Eigen::MatrixXd &H, const int &start1, const int &end1, const int &start2, const int &end2);
 
-    // Inertial pose-graph
-    void static InertialOptimization(Map *pMap, Eigen::Matrix3d &Rwg, double &scale, Eigen::Vector3d &bg, Eigen::Vector3d &ba, bool bMono, Eigen::MatrixXd  &covInertial, bool bFixedVel=false, bool bGauss=false, float priorG = 1e2, float priorA = 1e6);
-    void static InertialOptimization(Map *pMap, Eigen::Vector3d &bg, Eigen::Vector3d &ba, float priorG = 1e2, float priorA = 1e6);
-    void static InertialOptimization(vector<KeyFrame*> vpKFs, Eigen::Vector3d &bg, Eigen::Vector3d &ba, float priorG = 1e2, float priorA = 1e6);
-    void static InertialOptimization(Map *pMap, Eigen::Matrix3d &Rwg, double &scale);
+    // // Inertial pose-graph
+    // void static InertialOptimization(Map *pMap, Eigen::Matrix3d &Rwg, double &scale, Eigen::Vector3d &bg, Eigen::Vector3d &ba, bool bMono, Eigen::MatrixXd  &covInertial, bool bFixedVel=false, bool bGauss=false, float priorG = 1e2, float priorA = 1e6);
+    // void static InertialOptimization(Map *pMap, Eigen::Vector3d &bg, Eigen::Vector3d &ba, float priorG = 1e2, float priorA = 1e6);
+    // void static InertialOptimization(vector<KeyFrame*> vpKFs, Eigen::Vector3d &bg, Eigen::Vector3d &ba, float priorG = 1e2, float priorA = 1e6);
+    // void static InertialOptimization(Map *pMap, Eigen::Matrix3d &Rwg, double &scale);
 };
 
 } //namespace ORB_SLAM3

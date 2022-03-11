@@ -36,8 +36,8 @@ void Node::Init () {
    ORB_SLAM3::ORBParameters parameters;
    LoadOrbParameters (parameters);
 
-  orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file = map_file_name_param_, load_map = load_map_param_, bUseViewer = false);
-
+  orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file_name_param_, load_map_param_, false);
+  
   service_server_ = node_handle_.advertiseService(name_of_node_+"/save_map", &Node::SaveMapSrv, this);
 
   //Setup dynamic reconfigure
@@ -59,7 +59,7 @@ void Node::Init () {
     pose_publisher_ = node_handle_.advertise<geometry_msgs::PoseStamped> (name_of_node_+"/pose", 1);
   }
 
-  status_gba_publisher_ = node_handle_.advertise<std_msgs::Bool> (name_of_node_+"/gba_running", 1);
+  // status_gba_publisher_ = node_handle_.advertise<std_msgs::Bool> (name_of_node_+"/gba_running", 1);
 }
 
 
@@ -81,7 +81,7 @@ void Node::Update (cv::Mat position) {
     PublishMapPoints (orb_slam_->GetAllMapPoints());
   }
 
-  PublishGBAStatus (orb_slam_->isRunningGBA());
+  // PublishGBAStatus (orb_slam_->isRunningGBA());
 
 }
 
@@ -284,12 +284,13 @@ void Node::ParamsChangedCallback(orb_slam3_ros::dynamic_reconfigureConfig &confi
     config.reset_map = false;
   }
 
-  orb_slam_->SetMinimumKeyFrames (config.min_num_kf_in_map);
+  // orb_slam_->SetMinimumKeyFrames (config.min_num_kf_in_map);
 }
 
 
 bool Node::SaveMapSrv (orb_slam3_ros::SaveMap::Request &req, orb_slam3_ros::SaveMap::Response &res) {
-  res.success = orb_slam_->SaveMap(req.name);
+  // res.success = orb_slam_->SaveMap(req.name);
+  res.success = false;
 
   if (res.success) {
     ROS_INFO_STREAM ("Map was saved as " << req.name);
@@ -302,7 +303,7 @@ bool Node::SaveMapSrv (orb_slam3_ros::SaveMap::Request &req, orb_slam3_ros::Save
 
 void Node::LoadOrbParameters (ORB_SLAM3::ORBParameters& parameters) {
   // Temp Values
-  thFarPoints = 20.0; //Threshold for what is too far to track
+  parameters.thFarPoints = 20.0; //Threshold for what is too far to track
 
   parameters.camera.imageWidth = 640;
   parameters.camera.imageHeight = 480;
@@ -321,8 +322,7 @@ void Node::LoadOrbParameters (ORB_SLAM3::ORBParameters& parameters) {
 
   //ORB SLAM configuration parameters
   node_handle_.param(name_of_node_ + "/camera_fps", parameters.maxFrames, 30);
-  node_handle_.param(name_of_node_ + "/camera_fps", parameters.camera.fps, 30);
-  node_handle_.param(name_of_node_ + "/camera_rgb_encoding", parameters.camera.RGB, true);
+  parameters.camera.fps = parameters.maxFrames;  node_handle_.param(name_of_node_ + "/camera_rgb_encoding", parameters.camera.RGB, true);
   node_handle_.param(name_of_node_ + "/ORBextractor/nFeatures", parameters.nFeatures, 1200);
   node_handle_.param(name_of_node_ + "/ORBextractor/scaleFactor", parameters.scaleFactor, static_cast<float>(1.2));
   node_handle_.param(name_of_node_ + "/ORBextractor/nLevels", parameters.nLevels, 8);

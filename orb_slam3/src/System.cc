@@ -103,7 +103,8 @@ System::System(const string &strVocFile, ORBParameters& parameters, const eSenso
 
     // begin map serialization addition
     // load serialized map
-    if (load_map && LoadMap(map_file)) {
+    //if (load_map && LoadMap(map_file)) {
+    if (false) {
         std::cout << "Using loaded map with " << mpAtlas->MapPointsInMap() << " points\n" << std::endl;
     }
     else {

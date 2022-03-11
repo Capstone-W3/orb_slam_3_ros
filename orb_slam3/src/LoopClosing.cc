@@ -1904,22 +1904,22 @@ void LoopClosing::MergeLocal2()
 
     const int numKFnew=pCurrentMap->KeyFramesInMap();
 
-    if((mpTracker->mSensor==System::IMU_MONOCULAR || mpTracker->mSensor==System::IMU_STEREO)&& !pCurrentMap->GetIniertialBA2()){
-        // Map is not completly initialized
-        Eigen::Vector3d bg, ba;
-        bg << 0., 0., 0.;
-        ba << 0., 0., 0.;
-        Optimizer::InertialOptimization(pCurrentMap,bg,ba);
-        IMU::Bias b (ba[0],ba[1],ba[2],bg[0],bg[1],bg[2]);
-        unique_lock<mutex> lock(mpAtlas->GetCurrentMap()->mMutexMapUpdate);
-        mpTracker->UpdateFrameIMU(1.0f,b,mpTracker->GetLastKeyFrame());
+    // if((mpTracker->mSensor==System::IMU_MONOCULAR || mpTracker->mSensor==System::IMU_STEREO)&& !pCurrentMap->GetIniertialBA2()){
+    //     // Map is not completly initialized
+    //     Eigen::Vector3d bg, ba;
+    //     bg << 0., 0., 0.;
+    //     ba << 0., 0., 0.;
+    //     Optimizer::InertialOptimization(pCurrentMap,bg,ba);
+    //     IMU::Bias b (ba[0],ba[1],ba[2],bg[0],bg[1],bg[2]);
+    //     unique_lock<mutex> lock(mpAtlas->GetCurrentMap()->mMutexMapUpdate);
+    //     mpTracker->UpdateFrameIMU(1.0f,b,mpTracker->GetLastKeyFrame());
 
-        // Set map initialized
-        pCurrentMap->SetIniertialBA2();
-        pCurrentMap->SetIniertialBA1();
-        pCurrentMap->SetImuInitialized();
+    //     // Set map initialized
+    //     pCurrentMap->SetIniertialBA2();
+    //     pCurrentMap->SetIniertialBA1();
+    //     pCurrentMap->SetImuInitialized();
 
-    }
+    // }
 
 
     cout << "MergeMap init ID: " << pMergeMap->GetInitKFid() << "       CurrMap init ID: " << pCurrentMap->GetInitKFid() << endl;

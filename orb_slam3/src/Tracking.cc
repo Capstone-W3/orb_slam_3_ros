@@ -1974,28 +1974,28 @@ bool Tracking::TrackLocalMap()
     int inliers;
     if (!mpAtlas->isImuInitialized())
         Optimizer::PoseOptimization(&mCurrentFrame);
-    else
-    {
-        if(mCurrentFrame.mnId<=mnLastRelocFrameId+mnFramesToResetIMU)
-        {
-            Verbose::PrintMess("TLM: PoseOptimization ", Verbose::VERBOSITY_DEBUG);
-            Optimizer::PoseOptimization(&mCurrentFrame);
-        }
-        else
-        {
-            // if(!mbMapUpdated && mState == OK) //  && (mnMatchesInliers>30))
-            if(!mbMapUpdated) //  && (mnMatchesInliers>30))
-            {
-                Verbose::PrintMess("TLM: PoseInertialOptimizationLastFrame ", Verbose::VERBOSITY_DEBUG);
-                inliers = Optimizer::PoseInertialOptimizationLastFrame(&mCurrentFrame); // , !mpLastKeyFrame->GetMap()->GetIniertialBA1());
-            }
-            else
-            {
-                Verbose::PrintMess("TLM: PoseInertialOptimizationLastKeyFrame ", Verbose::VERBOSITY_DEBUG);
-                inliers = Optimizer::PoseInertialOptimizationLastKeyFrame(&mCurrentFrame); // , !mpLastKeyFrame->GetMap()->GetIniertialBA1());
-            }
-        }
-    }
+    // else
+    // {
+    //     if(mCurrentFrame.mnId<=mnLastRelocFrameId+mnFramesToResetIMU)
+    //     {
+    //         Verbose::PrintMess("TLM: PoseOptimization ", Verbose::VERBOSITY_DEBUG);
+    //         Optimizer::PoseOptimization(&mCurrentFrame);
+    //     }
+    //     else
+    //     {
+    //         // if(!mbMapUpdated && mState == OK) //  && (mnMatchesInliers>30))
+    //         if(!mbMapUpdated) //  && (mnMatchesInliers>30))
+    //         {
+    //             Verbose::PrintMess("TLM: PoseInertialOptimizationLastFrame ", Verbose::VERBOSITY_DEBUG);
+    //             inliers = Optimizer::PoseInertialOptimizationLastFrame(&mCurrentFrame); // , !mpLastKeyFrame->GetMap()->GetIniertialBA1());
+    //         }
+    //         else
+    //         {
+    //             Verbose::PrintMess("TLM: PoseInertialOptimizationLastKeyFrame ", Verbose::VERBOSITY_DEBUG);
+    //             inliers = Optimizer::PoseInertialOptimizationLastKeyFrame(&mCurrentFrame); // , !mpLastKeyFrame->GetMap()->GetIniertialBA1());
+    //         }
+    //     }
+    // }
 
     aux1 = 0, aux2 = 0;
     for(int i=0; i<mCurrentFrame.N; i++)
