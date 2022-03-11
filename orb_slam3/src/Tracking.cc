@@ -133,7 +133,7 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
     DistCoef.at<float>(1) = parameters.camera.k2;
     DistCoef.at<float>(2) = parameters.camera.p1;
     DistCoef.at<float>(3) = parameters.camera.p2;
-    if(parameters.k3!=0)
+    if(parameters.camera.k3!=0)
     {
         DistCoef.resize(5);
         DistCoef.at<float>(4) = parameters.camera.k3;
@@ -180,11 +180,11 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
 
 void Tracking::UnpackOrbParameters(ORBParameters& parameters)
 {
-    nFeatures = parameters.nFeatures;
-    fScaleFactor = parameters.scaleFactor;
-    nLevels = parameters.nLevels;
-    fIniThFAST = parameters.iniThFAST;
-    fMinThFAST = parameters.minThFAST;
+    int nFeatures = parameters.nFeatures;
+    float fScaleFactor = parameters.scaleFactor;
+    int nLevels = parameters.nLevels;
+    int fIniThFAST = parameters.iniThFAST;
+    int fMinThFAST = parameters.minThFAST;
     
     mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 

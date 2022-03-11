@@ -938,7 +938,7 @@ rlim_t System::GetCurrentCallStackSize () {
 
     return rlimit.rlim_cur;
 }
-
+/*
 // map serialization addition
 bool System::SaveMap(const string &filename) {
     unique_lock<mutex>MapPointGlobal(MapPoint::mGlobalMutex);
@@ -1021,6 +1021,6 @@ bool System::LoadMap(const string &filename) {
 
     return true;
 }
-
+*/
 
 } //namespace ORB_SLAM
