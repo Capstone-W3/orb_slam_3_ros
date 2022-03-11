@@ -1,4 +1,7 @@
 <launch>
+
+	<node pkg="tf" type="static_transform_publisher" name="cameraToRobot" args="0 0 0 0 0 0 base_link camera_link 100" > </node>
+
   <node name="orb_slam3_mono" pkg="orb_slam3_ros"
       type="orb_slam3_ros_mono" output="screen">
 
@@ -49,8 +52,10 @@
 
 
   <!-- Run other launch file -->
+  <!--
   <include file="$(find ORB_SLAM3)/launch/octomap.launch" />
 	<include file="$(find ORB_SLAM3)/launch/transform.launch" />
 	<node pkg="rviz" name="rviz" type="rviz" /> 
+  -->
   
 </launch>
