@@ -45,6 +45,7 @@ endif()
 
 find_package(Eigen3 3.1.0 REQUIRED)
 # find_package(Pangolin REQUIRED)
+find_package(octomap REQUIRED )
 
 set (DYNAMIC_RECONFIGURE_PATH ros/config/dynamic_reconfigure.cfg)
 execute_process(COMMAND chmod a+x ${DYNAMIC_RECONFIGURE_PATH}
@@ -69,6 +70,7 @@ set(LIBS_ROS
 ${PROJECT_SOURCE_DIR}/orb_slam3/lib/lib${PROJECT_NAME}.so
 ${OpenCV_LIBS}
 ${catkin_LIBRARIES}
+${OCTOMAP_LIBRARIES}
 )
 
 add_service_files(
@@ -94,6 +96,7 @@ ${PROJECT_SOURCE_DIR}/ros/include
 ${EIGEN3_INCLUDE_DIR}
 # ${Pangolin_INCLUDE_DIRS}
 ${catkin_INCLUDE_DIRS}
+${OCTOMAP_INCLUDE_DIRS}
 )
 
 include(${PROJECT_SOURCE_DIR}/orb_slam3/Thirdparty/DBoW2/CMakeLists.txt)
