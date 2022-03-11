@@ -62,8 +62,8 @@ Tracking::Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer,
 {
 
     //Unpack all the parameters from the parameters struct (this replaces loading in a second configuration file)
-    UnpackCameraParameters(ORBParameters& parameters);
-    UnpackOrbParameters(ORBParameters& parameters);
+    UnpackCameraParameters(parameters);
+    UnpackOrbParameters(parameters);
 
     initID = 0; lastID = 0;
 
@@ -162,14 +162,14 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
     else
         cout << "- color order: BGR (ignored if grayscale)" << endl;
     
-    if(sensor==System::STEREO || sensor==System::RGBD)
+    if(mSensor==System::STEREO || mSensor==System::RGBD)
     {
         mThDepth = mbf*(float)mThDepth/parameters.camera.fx;
         cout << endl << "Depth Threshold (Close/Far Points): " << mThDepth << endl;
     }
 
     mDepthMapFactor = parameters.depthMapFactor;
-    if(sensor==System::RGBD)
+    if(mSensor==System::RGBD)
     {
         if(fabs(mDepthMapFactor)<1e-5)
             mDepthMapFactor=1;
@@ -188,10 +188,10 @@ void Tracking::UnpackOrbParameters(ORBParameters& parameters)
     
     mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
-    if(sensor==System::STEREO)
+    if(mSensor==System::STEREO)
         mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
-    if(sensor==System::MONOCULAR)
+    if(mSensor==System::MONOCULAR)
         mpIniORBextractor = new ORBextractor(5*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
 
     cout << endl  << "ORB Extractor Parameters: " << endl;

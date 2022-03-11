@@ -41,12 +41,7 @@ Verbose::eLevel Verbose::th = Verbose::VERBOSITY_NORMAL;
 // System::System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor,
 //                const std::string & map_file, bool load_map, const bool bUseViewer, 
 //                const int initFr, const string &strSequence, const string &strLoadingFile):
-System::System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor,
-               const std::string & map_file, bool load_map, const bool bUseViewer, 
-               const int initFr, const string &strSequence, const string &strLoadingFile):
-    mSensor(sensor), mbReset(false), mbResetActiveMap(false),
-    mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false),
-    map_file(map_file), load_map(load_map)
+System::System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor, const std::string & map_file, bool load_map, const bool bUseViewer, const int initFr, const string &strSequence, const string &strLoadingFile): mSensor(sensor), mbReset(false), mbResetActiveMap(false), mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false), map_file(map_file), load_map(load_map)
 {
     // Output welcome message
     cout << endl <<
@@ -109,19 +104,15 @@ System::System(const string &strVocFile, ORBParameters& parameters, const eSenso
     // begin map serialization addition
     // load serialized map
     if (load_map && LoadMap(map_file)) {
-        std::cout << "Using loaded map with " << mpMap->MapPointsInMap() << " points\n" << std::endl;
+        std::cout << "Using loaded map with " << mpAtlas->MapPointsInMap() << " points\n" << std::endl;
     }
     else {
         //Create KeyFrame Database
         mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
         //Create the Map
-        mpMap = new Map();
+        mpAtlas = new Atlas(0);
     }
     // end map serialization addition
-
-    //Create the Atlas
-    //mpMap = new Map();
-    mpAtlas = new Atlas(0);
 
     if (mSensor==IMU_STEREO || mSensor==IMU_MONOCULAR)
         mpAtlas->SetInertialSensor();
@@ -904,7 +895,7 @@ cv::Mat System::DrawCurrentFrame () {
 }
 
 std::vector<MapPoint*> System::GetAllMapPoints() {
-  return mpMap->GetAllMapPoints();
+  return mpAtlas->GetAllMapPoints();
 }
 
 
@@ -967,7 +958,7 @@ bool System::SaveMap(const string &filename) {
     try {
         std::cout << "saving map file: " << map_file << std::flush;
         boost::archive::binary_oarchive oa(out, boost::archive::no_header);
-        oa << mpMap;
+        oa << mpAtlas;
         oa << mpKeyFrameDatabase;
         std::cout << " ... done" << std::endl;
         out.close();
@@ -1003,13 +994,13 @@ bool System::LoadMap(const string &filename) {
 
     std::cout << "Loading map file: " << map_file << std::flush;
     boost::archive::binary_iarchive ia(in, boost::archive::no_header);
-    ia >> mpMap;
+    ia >> mpAtlas;
     ia >> mpKeyFrameDatabase;
     mpKeyFrameDatabase->SetORBvocabulary(mpVocabulary);
     std::cout << " ... done" << std::endl;
 
     std::cout << "Map reconstructing" << flush;
-    vector<ORB_SLAM2::KeyFrame*> vpKFS = mpMap->GetAllKeyFrames();
+    vector<ORB_SLAM3::KeyFrame*> vpKFS = mpAtlas->GetAllKeyFrames();
     unsigned long mnFrameId = 0;
     for (auto it:vpKFS) {
 

@@ -28,6 +28,7 @@
 #include <string>
 #include <thread>
 #include <opencv2/core/core.hpp>
+#include <sys/resource.h>
 
 #include "Tracking.h"
 #include "FrameDrawer.h"
@@ -103,10 +104,7 @@ public:
 public:
 
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-    System(const string strVocFile, ORBParameters& parameters, const eSensor sensor,
-           const std::string & map_file = "", bool load_map = false, // map serialization addition
-           const bool bUseViewer = true, const int initFr = 0, 
-           const string &strSequence = std::string(), const string &strLoadingFile = std::string());
+    System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor, const std::string & map_file = "", bool load_map = false, const bool bUseViewer = true, const int initFr = 0, const string &strSequence = std::string(), const string &strLoadingFile = std::string());
 
 /*
     // From ORB-SLAM3
