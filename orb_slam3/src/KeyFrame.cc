@@ -20,7 +20,7 @@
 #include "Converter.h"
 #include "ORBmatcher.h"
 #include "ImuTypes.h"
-#include <mutex>
+#include<mutex>
 
 namespace ORB_SLAM3
 {
@@ -34,14 +34,16 @@ KeyFrame::KeyFrame():
         mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnMergeQuery(0), mnMergeWords(0), mnBAGlobalForKF(0),
         fx(0), fy(0), cx(0), cy(0), invfx(0), invfy(0), mnPlaceRecognitionQuery(0), mnPlaceRecognitionWords(0), mPlaceRecognitionScore(0),
         mbf(0), mb(0), mThDepth(0), N(0), mvKeys(static_cast<vector<cv::KeyPoint> >(NULL)), mvKeysUn(static_cast<vector<cv::KeyPoint> >(NULL)),
-        mvuRight(static_cast<vector<float> >(NULL)), mvDepth(static_cast<vector<float> >(NULL)), 
-        mnScaleLevels(0), mfScaleFactor(0),
+        mvuRight(static_cast<vector<float> >(NULL)), mvDepth(static_cast<vector<float> >(NULL)), /*mDescriptors(NULL),*/
+        /*mBowVec(NULL), mFeatVec(NULL),*/ mnScaleLevels(0), mfScaleFactor(0),
         mfLogScaleFactor(0), mvScaleFactors(0), mvLevelSigma2(0),
         mvInvLevelSigma2(0), mnMinX(0), mnMinY(0), mnMaxX(0),
-        mnMaxY(0), mPrevKF(static_cast<KeyFrame*>(NULL)), mNextKF(static_cast<KeyFrame*>(NULL)), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
+        mnMaxY(0), /*mK(NULL),*/  mPrevKF(static_cast<KeyFrame*>(NULL)), mNextKF(static_cast<KeyFrame*>(NULL)), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
         mbToBeErased(false), mbBad(false), mHalfBaseline(0), mbCurrentPlaceRecognition(false), mbHasHessian(false), mnMergeCorrectedForKF(0),
         NLeft(0),NRight(0), mnNumberOfOpt(0)
-{ }
+{
+
+}
 
 KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     bImu(pMap->isImuInitialized()), mnFrameId(F.mnId),  mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
@@ -93,8 +95,13 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     SetPose(F.mTcw);
 
     mnOriginMapId = pMap->GetId();
-}
 
+    this->Tlr_ = cv::Matx44f(mTlr.at<float>(0,0),mTlr.at<float>(0,1),mTlr.at<float>(0,2),mTlr.at<float>(0,3),
+                             mTlr.at<float>(1,0),mTlr.at<float>(1,1),mTlr.at<float>(1,2),mTlr.at<float>(1,3),
+                             mTlr.at<float>(2,0),mTlr.at<float>(2,1),mTlr.at<float>(2,2),mTlr.at<float>(2,3),
+                             mTlr.at<float>(3,0),mTlr.at<float>(3,1),mTlr.at<float>(3,2),mTlr.at<float>(3,3));
+
+}
 void KeyFrame::ComputeBoW()
 {
     if(mBowVec.empty() || mFeatVec.empty())
@@ -123,6 +130,19 @@ void KeyFrame::SetPose(const cv::Mat &Tcw_)
     Ow.copyTo(Twc.rowRange(0,3).col(3));
     cv::Mat center = (cv::Mat_<float>(4,1) << mHalfBaseline, 0 , 0, 1);
     Cw = Twc*center;
+
+    //Static matrices
+    this->Tcw_ = cv::Matx44f(Tcw.at<float>(0,0),Tcw.at<float>(0,1),Tcw.at<float>(0,2),Tcw.at<float>(0,3),
+                       Tcw.at<float>(1,0),Tcw.at<float>(1,1),Tcw.at<float>(1,2),Tcw.at<float>(1,3),
+                       Tcw.at<float>(2,0),Tcw.at<float>(2,1),Tcw.at<float>(2,2),Tcw.at<float>(2,3),
+                       Tcw.at<float>(3,0),Tcw.at<float>(3,1),Tcw.at<float>(3,2),Tcw.at<float>(3,3));
+
+    this->Twc_ = cv::Matx44f(Twc.at<float>(0,0),Twc.at<float>(0,1),Twc.at<float>(0,2),Twc.at<float>(0,3),
+                             Twc.at<float>(1,0),Twc.at<float>(1,1),Twc.at<float>(1,2),Twc.at<float>(1,3),
+                             Twc.at<float>(2,0),Twc.at<float>(2,1),Twc.at<float>(2,2),Twc.at<float>(2,3),
+                                     Twc.at<float>(3,0),Twc.at<float>(3,1),Twc.at<float>(3,2),Twc.at<float>(3,3));
+
+    this->Ow_ = cv::Matx31f(Ow.at<float>(0),Ow.at<float>(1),Ow.at<float>(2));
 }
 
 void KeyFrame::SetVelocity(const cv::Mat &Vw_)
@@ -274,7 +294,7 @@ vector<KeyFrame*> KeyFrame::GetCovisiblesByWeight(const int &w)
     else
     {
         int n = it-mvOrderedWeights.begin();
-        //cout << "n = " << n << endl;
+
         return vector<KeyFrame*>(mvpOrderedConnectedKeyFrames.begin(), mvpOrderedConnectedKeyFrames.begin()+n);
     }
 }
@@ -465,41 +485,12 @@ void KeyFrame::UpdateConnections(bool upParent)
     {
         unique_lock<mutex> lockCon(mMutexConnections);
 
-        // mspConnectedKeyFrames = spConnectedKeyFrames;
         mConnectedKeyFrameWeights = KFcounter;
         mvpOrderedConnectedKeyFrames = vector<KeyFrame*>(lKFs.begin(),lKFs.end());
         mvOrderedWeights = vector<int>(lWs.begin(), lWs.end());
 
-//        if(mbFirstConnection && mnId!=mpMap->GetInitKFid())
-//        {
-//            mpParent = mvpOrderedConnectedKeyFrames.front();
-//            mpParent->AddChild(this);
-//            mbFirstConnection = false;
-//        }
-
         if(mbFirstConnection && mnId!=mpMap->GetInitKFid())
         {
-            /*if(!mpParent || mpParent->GetParent() != this)
-            {
-                KeyFrame* pBestParent = static_cast<KeyFrame*>(NULL);
-                for(KeyFrame* pKFi : mvpOrderedConnectedKeyFrames)
-                {
-                    if(pKFi->GetParent() || pKFi->mnId == mpMap->GetInitKFid())
-                    {
-                        pBestParent = pKFi;
-                        break;
-                    }
-                }
-                if(!pBestParent)
-                {
-                    cout << "It can't be a covisible KF without Parent" << endl << endl;
-                    return;
-                }
-                mpParent = pBestParent;
-                mpParent->AddChild(this);
-                mbFirstConnection = false;
-            }*/
-            // cout << "udt.conn.id: " << mnId << endl;
             mpParent = mvpOrderedConnectedKeyFrames.front();
             mpParent->AddChild(this);
             mbFirstConnection = false;
@@ -523,8 +514,7 @@ void KeyFrame::EraseChild(KeyFrame *pKF)
 void KeyFrame::ChangeParent(KeyFrame *pKF)
 {
     unique_lock<mutex> lockCon(mMutexConnections);
-//    if(!mpParent && mpParent != this)
-//        mpParent->EraseChild(this);
+
     if(pKF == this)
     {
         cout << "ERROR: Change parent KF, the parent and child are the same KF" << endl;
@@ -608,45 +598,32 @@ void KeyFrame::SetErase()
 }
 
 void KeyFrame::SetBadFlag()
-{   
-    // std::cout << "Erasing KF..." << std::endl;
+{
     {
         unique_lock<mutex> lock(mMutexConnections);
         if(mnId==mpMap->GetInitKFid())
         {
-            //std::cout << "KF.BADFLAG-> KF 0!!" << std::endl;
             return;
         }
         else if(mbNotErase)
         {
-            //std::cout << "KF.BADFLAG-> mbNotErase!!" << std::endl;
             mbToBeErased = true;
             return;
         }
-        if(!mpParent)
-        {
-            //cout << "KF.BADFLAG-> There is not parent, but it is not the first KF in the map" << endl;
-            //cout << "KF.BADFLAG-> KF: " << mnId << "; first KF: " << mpMap->GetInitKFid() << endl;
-        }
     }
-    //std::cout << "KF.BADFLAG-> Erasing KF..." << std::endl;
 
     for(map<KeyFrame*,int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend=mConnectedKeyFrameWeights.end(); mit!=mend; mit++)
     {
         mit->first->EraseConnection(this);
     }
-    //std::cout << "KF.BADFLAG-> Connection erased..." << std::endl;
 
     for(size_t i=0; i<mvpMapPoints.size(); i++)
     {
         if(mvpMapPoints[i])
         {
             mvpMapPoints[i]->EraseObservation(this);
-            // nDeletedPoints++;
         }
     }
-    // cout << "nDeletedPoints: " << nDeletedPoints << endl;
-    //std::cout << "KF.BADFLAG-> Observations deleted..." << std::endl;
 
     {
         unique_lock<mutex> lock(mMutexConnections);
@@ -659,7 +636,6 @@ void KeyFrame::SetBadFlag()
         set<KeyFrame*> sParentCandidates;
         if(mpParent)
             sParentCandidates.insert(mpParent);
-        //std::cout << "KF.BADFLAG-> Initially there are " << sParentCandidates.size() << " candidates" << std::endl;
 
         // Assign at each iteration one children with a parent (the pair with highest covisibility weight)
         // Include that children as new parent candidate for the rest
@@ -697,16 +673,9 @@ void KeyFrame::SetBadFlag()
                     }
                 }
             }
-            //std::cout << "KF.BADFLAG-> Find most similar children" << std::endl;
 
             if(bContinue)
             {
-                if(pC->mnId == pP->mnId)
-                {
-                    /*cout << "ERROR: The parent and son can't be the same KF. ID: " << pC->mnId << endl;
-                    cout << "Current KF: " << mnId << endl;
-                    cout << "Parent of the map: " << endl;*/
-                }
                 pC->ChangeParent(pP);
                 sParentCandidates.insert(pC);
                 mspChildrens.erase(pC);
@@ -714,7 +683,6 @@ void KeyFrame::SetBadFlag()
             else
                 break;
         }
-        //std::cout << "KF.BADFLAG-> Apply change of parent to children" << std::endl;
 
         // If a children has no covisibility links with any parent candidate, assign to the original parent of this KF
         if(!mspChildrens.empty())
@@ -724,15 +692,10 @@ void KeyFrame::SetBadFlag()
                 (*sit)->ChangeParent(mpParent);
             }
         }
-        //std::cout << "KF.BADFLAG-> Apply change to its parent" << std::endl;
 
         if(mpParent){
             mpParent->EraseChild(this);
             mTcp = Tcw*mpParent->GetPoseInverse();
-        }
-        else
-        {
-            //cout << "Error: KF haven't got a parent, it is imposible reach this code point without him" << endl;
         }
         mbBad = true;
     }
@@ -1268,5 +1231,95 @@ void KeyFrame::SetKeyFrameDatabase(KeyFrameDatabase* pKFDB)
 {
     mpKeyFrameDB = pKFDB;
 }
+
+cv::Matx33f KeyFrame::GetRotation_() {
+    unique_lock<mutex> lock(mMutexPose);
+    return Tcw_.get_minor<3,3>(0,0);
+}
+
+cv::Matx31f KeyFrame::GetTranslation_() {
+    unique_lock<mutex> lock(mMutexPose);
+    return Tcw_.get_minor<3,1>(0,3);
+}
+
+cv::Matx31f KeyFrame::GetCameraCenter_() {
+    unique_lock<mutex> lock(mMutexPose);
+    return Ow_;
+}
+
+cv::Matx33f KeyFrame::GetRightRotation_() {
+    unique_lock<mutex> lock(mMutexPose);
+    cv::Matx33f Rrl = Tlr_.get_minor<3,3>(0,0).t();
+    cv::Matx33f Rlw = Tcw_.get_minor<3,3>(0,0);
+    cv::Matx33f Rrw = Rrl * Rlw;
+
+    return Rrw;
+}
+
+cv::Matx31f KeyFrame::GetRightTranslation_() {
+    unique_lock<mutex> lock(mMutexPose);
+    cv::Matx33f Rrl = Tlr_.get_minor<3,3>(0,0).t();
+    cv::Matx31f tlw = Tcw_.get_minor<3,1>(0,3);
+    cv::Matx31f trl = - Rrl * Tlr_.get_minor<3,1>(0,3);
+
+    cv::Matx31f trw = Rrl * tlw + trl;
+
+    return trw;
+}
+
+cv::Matx44f KeyFrame::GetRightPose_() {
+    unique_lock<mutex> lock(mMutexPose);
+
+    cv::Matx33f Rrl = Tlr_.get_minor<3,3>(0,0).t();
+    cv::Matx33f Rlw = Tcw_.get_minor<3,3>(0,0);
+    cv::Matx33f Rrw = Rrl * Rlw;
+
+    cv::Matx31f tlw = Tcw_.get_minor<3,1>(0,3);
+    cv::Matx31f trl = - Rrl * Tlr_.get_minor<3,1>(0,3);
+
+    cv::Matx31f trw = Rrl * tlw + trl;
+
+    cv::Matx44f Trw{Rrw(0,0),Rrw(0,1),Rrw(0,2),trw(0),
+                    Rrw(1,0),Rrw(1,1),Rrw(1,2),trw(1),
+                    Rrw(2,0),Rrw(2,1),Rrw(2,2),trw(2),
+                    0.f,0.f,0.f,1.f};
+
+    return Trw;
+}
+
+cv::Matx31f KeyFrame::GetRightCameraCenter_() {
+    unique_lock<mutex> lock(mMutexPose);
+    cv::Matx33f Rwl = Tcw_.get_minor<3,3>(0,0).t();
+    cv::Matx31f tlr = Tlr_.get_minor<3,1>(0,3);
+
+    cv::Matx31f twr = Rwl * tlr + Ow_;
+
+    return twr;
+}
+
+cv::Matx31f KeyFrame::UnprojectStereo_(int i) {
+    const float z = mvDepth[i];
+    if(z>0)
+    {
+        const float u = mvKeys[i].pt.x;
+        const float v = mvKeys[i].pt.y;
+        const float x = (u-cx)*z*invfx;
+        const float y = (v-cy)*z*invfy;
+        cv::Matx31f x3Dc(x,y,z);
+
+        unique_lock<mutex> lock(mMutexPose);
+        return Twc_.get_minor<3,3>(0,0) * x3Dc + Twc_.get_minor<3,1>(0,3);
+    }
+    else
+        return cv::Matx31f::zeros();
+}
+
+cv::Matx44f KeyFrame::GetPose_()
+{
+    unique_lock<mutex> lock(mMutexPose);
+    return Tcw_;
+}
+
+
 
 } //namespace ORB_SLAM

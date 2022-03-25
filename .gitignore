@@ -1,5 +1,6 @@
 CMakeLists.txt.user
 .idea/
+.vscode
 cmake-build-debug
 KeyFrameTrajectory.txt
 Thirdparty/DBoW2/build/

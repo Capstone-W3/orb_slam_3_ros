@@ -24,6 +24,7 @@ void Node::Init () {
   //static parameters
   node_handle_.param(name_of_node_+ "/publish_pointcloud", publish_pointcloud_param_, true);
   node_handle_.param(name_of_node_+ "/publish_pose", publish_pose_param_, true);
+  node_handle_.param(name_of_node_+ "/publish_trajectory", publish_trajectory_param_, true);
   node_handle_.param(name_of_node_+ "/publish_tf", publish_tf_param_, true);
   node_handle_.param<std::string>(name_of_node_+ "/pointcloud_frame_id", map_frame_id_param_, "map");
   node_handle_.param<std::string>(name_of_node_+ "/camera_frame_id", camera_frame_id_param_, "camera_link");
@@ -37,11 +38,7 @@ void Node::Init () {
    LoadOrbParameters (parameters);
 
   orb_slam_ = new ORB_SLAM3::System (voc_file_name_param_, parameters, sensor_, map_file_name_param_, load_map_param_, false);
-<<<<<<< HEAD
   
-=======
-
->>>>>>> cd5ca66c8eda459bca370b2cba7c01a79839bb58
   service_server_ = node_handle_.advertiseService(name_of_node_+"/save_map", &Node::SaveMapSrv, this);
 
   //Setup dynamic reconfigure
@@ -62,6 +59,9 @@ void Node::Init () {
   if (publish_pose_param_) {
     pose_publisher_ = node_handle_.advertise<geometry_msgs::PoseStamped> (name_of_node_+"/pose", 1);
   }
+  if (publish_trajectory_param_) {
+    trajectory_publisher_ = node_handle_.advertise<nav_msgs::Path> (name_of_node_+"/trajectory", 1);
+  }
 
   // status_gba_publisher_ = node_handle_.advertise<std_msgs::Bool> (name_of_node_+"/gba_running", 1);
 }
@@ -76,6 +76,10 @@ void Node::Update (cv::Mat position) {
 
     if (publish_pose_param_) {
       PublishPositionAsPoseStamped(position);
+    }
+
+    if (publish_trajectory_param_) {
+      PublishTrajectoryAsPathStamped(orb_slam_->GetKeyFrameTrajectory());
     }
   }
 
@@ -179,6 +183,29 @@ void Node::PublishPositionAsPoseStamped (cv::Mat position) {
   geometry_msgs::PoseStamped pose_msg;
   tf2::toMsg(tf_position_target_stamped, pose_msg);
   pose_publisher_.publish(pose_msg);
+}
+
+void Node::PublishTrajectoryAsPathStamped (std::vector<cv::Mat> trajectory) {
+  
+  nav_msgs::Path path_msg;
+
+  for (std::vector<cv::Mat>::iterator it_trajectory = trajectory.begin() ; it_trajectory != trajectory.end(); ++it_trajectory)
+  {
+    tf2::Transform tf_trajectory = TransformFromMat(*it_trajectory);
+
+    // Make transform from camera frame to target frame
+    tf2::Transform tf_trajectory_target = TransformToTarget(tf_trajectory, camera_frame_id_param_, target_frame_id_param_);
+    
+    // Make message
+    tf2::Stamped<tf2::Transform> tf_trajectory_target_stamped;
+    tf_trajectory_target_stamped = tf2::Stamped<tf2::Transform>(tf_trajectory_target, current_frame_time_, map_frame_id_param_);
+    geometry_msgs::PoseStamped trajectory_msg;
+
+    tf2::toMsg(tf_trajectory_target_stamped, trajectory_msg);
+    path_msg.poses.push_back(trajectory_msg);
+  }
+  
+  trajectory_publisher_.publish(path_msg);  
 }
 
 void Node::PublishGBAStatus (bool gba_status) {

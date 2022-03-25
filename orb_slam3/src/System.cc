@@ -133,7 +133,7 @@ System::System(const string &strVocFile, ORBParameters& parameters, const eSenso
     mpLocalMapper = new LocalMapping(this, mpAtlas, mSensor==MONOCULAR || mSensor==IMU_MONOCULAR, mSensor==IMU_MONOCULAR || mSensor==IMU_STEREO, strSequence);
     mptLocalMapping = new thread(&ORB_SLAM3::LocalMapping::Run,mpLocalMapper);
     
-    mpLocalMapper->mInitFr = initFr;
+    // mpLocalMapper->mInitFr = initFr;
     mpLocalMapper->mThFarPoints = parameters.thFarPoints;
     if(mpLocalMapper->mThFarPoints!=0)
     {
@@ -444,6 +444,44 @@ void System::Shutdown()
 }
 
 
+vector<cv::Mat> System::GetKeyFrameTrajectory()
+{
+    // cout << endl << "Retrieving full camera trajectory..." << endl;
+
+    vector<Map*> vpMaps = mpAtlas->GetAllMaps();
+    Map* pBiggerMap;
+    int numMaxKFs = 0;
+    for(Map* pMap :vpMaps)
+    {
+        if(pMap->GetAllKeyFrames().size() > numMaxKFs)
+        {
+            numMaxKFs = pMap->GetAllKeyFrames().size();
+            pBiggerMap = pMap;
+        }
+    }
+
+    vector<KeyFrame*> vpKFs = pBiggerMap->GetAllKeyFrames();
+    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+
+    // Transform all keyframes so that the first keyframe is at the origin.
+    // After a loop closure the first keyframe might not be at the origin.
+    cv::Mat Two = vpKFs[0]->GetPoseInverse();
+
+    vector<cv::Mat> vecZeroedKFs;
+
+    for(size_t i=0; i<vpKFs.size(); i++)
+    {
+        KeyFrame* pKF = vpKFs[i];
+
+       pKF->SetPose(pKF->GetPose()*Two);
+
+        if(pKF->isBad())
+            continue;
+
+        vecZeroedKFs.push_back(pKF->GetPose());
+    }
+    return vecZeroedKFs;
+}
 
 void System::SaveTrajectoryTUM(const string &filename)
 {

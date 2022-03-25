@@ -298,6 +298,16 @@ public:
     cv::Mat GetTranslation();
     cv::Mat GetVelocity();
 
+    cv::Matx33f GetRotation_();
+    cv::Matx31f GetTranslation_();
+    cv::Matx31f GetCameraCenter_();
+    cv::Matx33f GetRightRotation_();
+    cv::Matx31f GetRightTranslation_();
+    cv::Matx44f GetRightPose_();
+    cv::Matx31f GetRightCameraCenter_();
+    cv::Matx44f GetPose_();
+
+
     // Bag of Words Representation
     void ComputeBoW();
 
@@ -344,6 +354,7 @@ public:
     // KeyPoint functions
     std::vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r, const bool bRight = false) const;
     cv::Mat UnprojectStereo(int i);
+    cv::Matx31f UnprojectStereo_(int i);
 
     // Image
     bool IsInImage(const float &x, const float &y) const;
@@ -395,7 +406,6 @@ public:
     const long unsigned int mnFrameId;
 
     const double mTimeStamp;
-    // const int mSeqNum;
 
     // Grid (to speed up feature matching)
     const int mnGridCols;
@@ -518,6 +528,9 @@ protected:
     cv::Mat Ow;
     cv::Mat Cw; // Stereo middel point. Only for visualization
 
+    cv::Matx44f Tcw_, Twc_, Tlr_;
+    cv::Matx31f Ow_;
+
     // IMU position
     cv::Mat Owb;
 
@@ -603,7 +616,7 @@ public:
     cv::Mat GetRightRotation();
     cv::Mat GetRightTranslation();
 
-    cv::Mat imgLeft, imgRight; //TODO Backup??
+    cv::Mat imgLeft, imgRight;
 
     void PrintPointDistribution(){
         int left = 0, right = 0;

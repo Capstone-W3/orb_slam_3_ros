@@ -154,6 +154,8 @@ public:
     // This function must be called before saving the trajectory.
     void Shutdown();
 
+    vector<cv::Mat> GetKeyFrameTrajectory();
+
     // Save camera trajectory in the TUM RGB-D dataset format.
     // Only for stereo and RGB-D. This method does not work for monocular.
     // Call first Shutdown()

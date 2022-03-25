@@ -121,12 +121,21 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
     mMaxFrames = parameters.maxFrames;
     mMinFrames = 0;
 
+    float fx = parameters.camera.fx, fy = parameters.camera.fy,
+          cx = parameters.camera.cx, cy = parameters.camera.cy;
+
     cv::Mat K = cv::Mat::eye(3,3,CV_32F);
-    K.at<float>(0,0) = parameters.camera.fx;
-    K.at<float>(1,1) = parameters.camera.fy;
-    K.at<float>(0,2) = parameters.camera.cx;
-    K.at<float>(1,2) = parameters.camera.cy;
+    K.at<float>(0,0) = fx;
+    K.at<float>(1,1) = fy;
+    K.at<float>(0,2) = cx;
+    K.at<float>(1,2) = cy;
     K.copyTo(mK);
+
+    vector<float> vCamCalib{fx,fy,cx,cy};
+
+    mpCamera = new Pinhole(vCamCalib);
+
+    mpAtlas->AddCamera(mpCamera);
 
     cv::Mat DistCoef(4,1,CV_32F);
     DistCoef.at<float>(0) = parameters.camera.k1;
@@ -144,10 +153,10 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
     mbf = parameters.camera.baseline;
 
     cout << endl << "Camera Parameters: " << endl;
-    cout << "- fx: " << parameters.camera.fx << endl;
-    cout << "- fy: " << parameters.camera.fy << endl;
-    cout << "- cx: " << parameters.camera.cx << endl;
-    cout << "- cy: " << parameters.camera.cy << endl;
+    cout << "- fx: " << fx << endl;
+    cout << "- fy: " << fy << endl;
+    cout << "- cx: " << cx << endl;
+    cout << "- cy: " << cy << endl;
     cout << "- k1: " << DistCoef.at<float>(0) << endl;
     cout << "- k2: " << DistCoef.at<float>(1) << endl;
     if(DistCoef.rows==5)
@@ -156,6 +165,7 @@ void Tracking::UnpackCameraParameters(ORBParameters& parameters)
     cout << "- p2: " << DistCoef.at<float>(3) << endl;
     cout << "- fps: " << mMaxFrames << endl;
     cout << "- bf: " << mbf << endl;
+    
 
     if(mbRGB)
         cout << "- color order: RGB (ignored if grayscale)" << endl;
@@ -1183,7 +1193,7 @@ void Tracking::Track()
             }
         }
 
-        // Save frame if recent relocalization, since they are used for IMU reset (as we are making copy, it shluld be once mCurrFrame is completely modified)
+        // Save frame if recent relocalization, since they are used for IMU reset (as we are making copy, it should be once mCurrFrame is completely modified)
         if((mCurrentFrame.mnId<(mnLastRelocFrameId+mnFramesToResetIMU)) && (mCurrentFrame.mnId > mnFramesToResetIMU) && ((mSensor == System::IMU_MONOCULAR) || (mSensor == System::IMU_STEREO)) && pCurrentMap->isImuInitialized())
         {
             // TODO check this situation
@@ -1275,7 +1285,7 @@ void Tracking::Track()
                 if(mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
-        }
+        } 
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
@@ -1328,7 +1338,7 @@ void Tracking::Track()
     }
 }
 
-
+// Actually for Stereo and RGB-D
 void Tracking::StereoInitialization()
 {
     if(mCurrentFrame.N>500)
