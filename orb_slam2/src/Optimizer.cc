@@ -439,6 +439,10 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
         if(optimizer.edges().size()<10)
             break;
+        // Added to deal with error:
+        // virtual int g2o::SparseOptimizer::optimize(int, bool): 0 vertices to optimize, maybe forgot to call initializeOptimization()
+        if((nInitialCorrespondences-nBad)<5)
+            break;
     }    
 
     // Recover optimized pose and return number of inliers

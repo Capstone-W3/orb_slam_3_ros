@@ -162,25 +162,25 @@ protected:
     // "zero-drift" localization to the map.
     bool mbVO;
 
-    //Numer of Keyframes a map has to have to not get a reset in the event of lost tracking.
+    // Numer of Keyframes a map has to have to not get a reset in the event of lost tracking.
     int mnMinimumKeyFrames;
 
-    //Other Thread Pointers
+    // Other Thread Pointers
     LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopClosing;
 
-    //ORB
+    // ORB
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;
     ORBextractor* mpIniORBextractor;
 
-    //BoW
+    // BoW
     ORBVocabulary* mpORBVocabulary;
     KeyFrameDatabase* mpKeyFrameDB;
 
     // Initalization (only for monocular)
     Initializer* mpInitializer;
 
-    //Local Map
+    // Local Map
     KeyFrame* mpReferenceKF;
     std::vector<KeyFrame*> mvpLocalKeyFrames;
     std::vector<MapPoint*> mvpLocalMapPoints;
@@ -188,18 +188,18 @@ protected:
     // System
     System* mpSystem;
 
-    //Drawers
+    // Drawers
     FrameDrawer* mpFrameDrawer;
 
-    //Map
+    // Map
     Map* mpMap;
 
-    //Calibration matrix
+    // Calibration matrix
     cv::Mat mK;
     cv::Mat mDistCoef;
     float mbf;
 
-    //New KeyFrame rules (according to fps)
+    // New KeyFrame rules (according to fps)
     int mMinFrames;
     int mMaxFrames;
 
@@ -211,19 +211,19 @@ protected:
     // For RGB-D inputs only. For some datasets (e.g. TUM) the depthmap values are scaled.
     float mDepthMapFactor;
 
-    //Current matches in frame
+    // Current matches in frame
     int mnMatchesInliers;
 
-    //Last Frame, KeyFrame and Relocalisation Info
+    // Last Frame, KeyFrame and Relocalisation Info
     KeyFrame* mpLastKeyFrame;
     Frame mLastFrame;
     unsigned int mnLastKeyFrameId;
     unsigned int mnLastRelocFrameId;
 
-    //Motion Model
+    // Motion Model
     cv::Mat mVelocity;
 
-    //Color order (true RGB, false BGR, ignored if grayscale)
+    // Color order (true RGB, false BGR, ignored if grayscale)
     bool mbRGB;
 
     list<MapPoint*> mlpTemporalPoints;
@@ -237,6 +237,6 @@ protected:
     int fMinThFAST;
 };
 
-} //namespace ORB_SLAM
+} // namespace ORB_SLAM
 
 #endif // TRACKING_H

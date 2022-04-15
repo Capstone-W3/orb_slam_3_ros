@@ -278,6 +278,8 @@ void System::TrackMonocular(const cv::Mat &im, const double &timestamp)
 
 bool System::MapChanged()
 {
+    std::cout << "Map Changed\n";
+    
     static int n=0;
     int curn = mpMap->GetLastBigChangeIdx();
     if(n<curn)

@@ -293,7 +293,9 @@ void Tracking::Track()
                 {
                     bOK = TrackWithMotionModel();
                     if(!bOK)
+                    {
                         bOK = TrackReferenceKeyFrame();
+                    }
                 }
             }
             else
@@ -379,7 +381,11 @@ void Tracking::Track()
         if(!mbOnlyTracking)
         {
             if(bOK)
+            {
                 bOK = TrackLocalMap();
+                if(!bOK)
+                    std::cout << "bOK=0 from TrackLocalMap()" << std::endl;
+            }
         }
         else
         {
@@ -945,11 +951,17 @@ bool Tracking::TrackLocalMap()
 
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
-    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
+    if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<40)
+    {
+        std::cout << "(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50) --> (" << mCurrentFrame.mnId << "<" << mnLastRelocFrameId << "+" << mMaxFrames << " && " << mnMatchesInliers << "<50)\n";
         return false;
+    }
 
     if(mnMatchesInliers<30)
+    {
+        std::cout << "(mnMatchesInliers<30) --> " << mnMatchesInliers << std::endl;
         return false;
+    }
     else
         return true;
 }
@@ -957,6 +969,8 @@ bool Tracking::TrackLocalMap()
 
 bool Tracking::NeedNewKeyFrame()
 {
+    std::cout <<  mCurrentFrame.mnId << " : KF check" << std::endl;
+
     if(mbOnlyTracking)
         return false;
 
@@ -966,6 +980,9 @@ bool Tracking::NeedNewKeyFrame()
 
     const int nKFs = mpMap->KeyFramesInMap();
 
+    
+    // std::cout << "Add KF to Map with id: " << pKF->mnId << "   with #Points=" << mpMap->MapPointsInMap() << std::endl;
+    
     // Do not insert keyframes if not enough frames have passed from last relocalisation
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && nKFs>mMaxFrames)
         return false;
@@ -1017,6 +1034,7 @@ bool Tracking::NeedNewKeyFrame()
 
     if((c1a||c1b||c1c)&&c2)
     {
+        std::cout << "Met condition for keyframe: " << mCurrentFrame.mnId << std::endl;
         // If the mapping accepts keyframes, insert keyframe.
         // Otherwise send a signal to interrupt BA
         if(bLocalMappingIdle)
@@ -1047,6 +1065,7 @@ void Tracking::CreateNewKeyFrame()
         return;
 
     KeyFrame* pKF = new KeyFrame(mCurrentFrame,mpMap,mpKeyFrameDB);
+    std::cout << "New KF: kfID= " << pKF->mnId << " fID="<< pKF->mnFrameId;
 
     mpReferenceKF = pKF;
     mCurrentFrame.mpReferenceKF = pKF;
@@ -1119,6 +1138,7 @@ void Tracking::CreateNewKeyFrame()
 
     mnLastKeyFrameId = mCurrentFrame.mnId;
     mpLastKeyFrame = pKF;
+    std::cout << " --> finished\n";
 }
 
 void Tracking::SearchLocalPoints()

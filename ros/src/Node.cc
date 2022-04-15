@@ -2,7 +2,10 @@
 
 #include <iostream>
 
-Node::Node (ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, image_transport::ImageTransport &image_transport) :  image_transport_(image_transport) {
+Node::Node (ORB_SLAM2::System::eSensor sensor, ros::NodeHandle &node_handle, 
+            image_transport::ImageTransport &image_transport) 
+    : image_transport_(image_transport) 
+{
   name_of_node_ = ros::this_node::getName();
   node_handle_ = node_handle;
   min_observations_per_point_ = 2;
