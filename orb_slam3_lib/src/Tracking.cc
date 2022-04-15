@@ -52,6 +52,17 @@ namespace ORB_SLAM3
 //     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpAtlas(pAtlas), mnLastRelocFrameId(0), time_recently_lost(5.0),
 //     mnInitialFrameId(0), mbCreatedMap(false), mnFirstFrameId(0), mpCamera2(nullptr)
 
+/*
+Tracking::Tracking(ORBVocabulary *pVoc,
+                   Map *pMap,
+                   KeyFrameDatabase *pKFDB,
+                   const string &strSettingPath,
+                   int sensor) :
+    mState(NO_IMAGES_YET), mSensor(sensor), mbOnlyTracking(false), mbVO(false), mpORBVocabulary(pVoc),
+    mpKeyFrameDB(pKFDB), mpInitializer(nullptr), mpSystem(nullptr),
+    mpFrameSubscriber(nullptr), mpMapPublisher(nullptr), mpMap(pMap), mnLastRelocFrameId(0)
+*/
+
 Tracking::Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, Atlas* pAtlas,
                    KeyFrameDatabase* pKFDB, const int sensor, ORBParameters& parameters):
     mState(NO_IMAGES_YET), mSensor(sensor), mTrackedFr(0), mbStep(false),

@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="orb_slam3" type="Stereo" name="orb_slam3" args="$(find orb_slam3_lib)/Vocabulary/ORBvoc.txt $(find orb_slam3)/settings/morse_stereo.yaml False" cwd="node" output="screen">
+        <remap from="/camera/left/image_raw" to="/robot/stereo/cameraL/image" />
+        <remap from="/camera/right/image_raw" to="/robot/stereo/cameraR/image" />
+
+    </node>
+</launch>
+

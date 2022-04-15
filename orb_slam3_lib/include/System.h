@@ -103,6 +103,57 @@ public:
 
 public:
 
+
+    // A `Builder`'s responsibility is to create, link together and destroy each individual
+    // part of a `System`.  The pure virtual methods are all supposed to be simple getters.
+    class IBuilder {
+    public:
+        virtual ~IBuilder();
+        virtual eSensor GetSensorType() = 0;
+        virtual ORBVocabulary* GetVocabulary() = 0;
+        virtual KeyFrameDatabase* GetKeyFrameDatabase() = 0;
+        virtual Map* GetMap() = 0;
+        virtual Tracking* GetTracker() = 0;
+        virtual LocalMapping* GetLocalMapper() = 0;
+        virtual LoopClosing* GetLoopCloser() = 0;
+        virtual IPublisherThread *GetPublisher() = 0;
+    };
+
+    // This `IBuilder` implementation  constructs a system completely with the exception of
+    // the IPublisherThread and directly related objects (IFrameSubscriber, IMapPublisher).
+    // Since different Builders usually differ only by the class of those publishing objects,
+    // it's usually more practical to subclass this class instead of the IBuilder.
+    class GenericBuilder : public IBuilder {
+    public:
+        GenericBuilder(const std::string &strVocFile, const std::string &strSettingsFile, eSensor sensor);
+        virtual ~GenericBuilder();
+
+        virtual eSensor GetSensorType() override;
+        virtual ORBVocabulary *GetVocabulary() override;
+        virtual KeyFrameDatabase *GetKeyFrameDatabase() override;
+        virtual Map *GetMap() override;
+        virtual Tracking *GetTracker() override;
+        virtual LocalMapping *GetLocalMapper() override;
+        virtual LoopClosing *GetLoopCloser() override;
+
+    protected:
+        eSensor mSensor;
+        cv::FileStorage mSettings;
+        ORBVocabulary mVocabulary;
+        std::unique_ptr<KeyFrameDatabase> mpKeyFrameDatabase;
+        std::unique_ptr<Map> mpMap;
+        std::unique_ptr<Tracking> mpTracker;
+        std::unique_ptr<LocalMapping> mpLocalMapper;
+        std::unique_ptr<LoopClosing> mpLoopCloser;
+    };
+
+    // Creates the SLAM system.
+    // The created `System` object takes ownership of the passed `Builder`.
+    // The system will still need to be started by calling `System::Start()`.
+    System(std::unique_ptr<IBuilder> builder);
+
+
+
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     System(const string &strVocFile, ORBParameters& parameters, const eSensor sensor, const std::string & map_file = "", bool load_map = false, const bool bUseViewer = true, const int initFr = 0, const string &strSequence = std::string(), const string &strLoadingFile = std::string());
 

@@ -1,5 +1,5 @@
 /*
- * map save/load extension for ORB_SLAM2
+ * map save/load extension for ORB_slam3
  * This header contains boost headers needed by serialization
  *
  * object to save:

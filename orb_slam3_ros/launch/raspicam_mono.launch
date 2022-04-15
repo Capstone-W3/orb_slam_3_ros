@@ -1,0 +1,16 @@
+<launch>
+    
+    <node pkg="orb_slam3_ros"  type="Mono"  name="orb_slam3_ros"  
+          cwd="node"   output="screen">
+
+          <param name="voc_file" type="string" 
+                 value="$(find orb_slam3_lib)/Vocabulary/ORBvoc.txt" />
+          <rosparam command="load" 
+                    file="$(find orb_slam3_ros)/settings/orb_slam3_param.yaml" />
+          <rosparam command="load" 
+                    file="$(find orb_slam3_ros)/settings/raspicam_mono.yaml" />
+    
+    </node>
+
+</launch>
+

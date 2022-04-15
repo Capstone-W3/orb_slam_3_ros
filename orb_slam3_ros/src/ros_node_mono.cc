@@ -1,8 +1,8 @@
-#include "MonoNode.h"
+#include "ros_node_mono.h"
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "Mono");
+    ros::init(argc, argv, "node_mono");
     ros::start();
 
     if(argc > 1) {
@@ -16,8 +16,11 @@ int main(int argc, char **argv)
     MonoNode node (ORB_SLAM3::System::MONOCULAR, node_handle, image_transport);
 
     node.Init();
-
+    
+    node.Start();
     ros::spin();
+
+    node.Shutdown();
 
     ros::shutdown();
 
@@ -28,8 +31,14 @@ int main(int argc, char **argv)
 MonoNode::MonoNode (ORB_SLAM3::System::eSensor sensor, ros::NodeHandle &node_handle, 
                     image_transport::ImageTransport &image_transport) 
                     : Node (sensor, node_handle, image_transport) {
-  image_subscriber = image_transport.subscribe ("/camera/image_raw", 1, &MonoNode::ImageCallback, this);
-  camera_info_topic_ = "/camera/camera_info";
+
+    std::string image_topic, camera_info;
+
+    node_handle.param<std::string>("/orb_slam3_ros/topic/image_topic", image_topic, ROSPublisher::DEFAULT_IMAGE_TOPIC);
+    node_handle.param<std::string>("/orb_slam3_ros/topic/camera_info", camera_info);
+    
+    image_subscriber = image_transport.subscribe (image_topic, 1, &MonoNode::ImageCallback, this);
+    camera_info_topic_ = camera_info;
 }
 
 
@@ -48,7 +57,8 @@ void MonoNode::ImageCallback (const sensor_msgs::ImageConstPtr& msg) {
 
   current_frame_time_ = msg->header.stamp;
 
-  cv::Mat position = orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
+  orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
 
-  Update (position);
+//   cv::Mat position = orb_slam_->TrackMonocular(cv_in_ptr->image,cv_in_ptr->header.stamp.toSec());
+
 }
